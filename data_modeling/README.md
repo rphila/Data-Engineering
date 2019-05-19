@@ -1,6 +1,9 @@
 # "Sparkify" ETL Process
- - The purpose of this data modeling project is to architect a database schema and ETL pipeline that would allow the analytics team to quickly analyze user songplay activity data being collected by "sparikfy's" music streaming app.
- - This ETL pipeline will extract user session data and song/artist metadata contained in json files, then transform and load them into relational tables in Postgres database, which will be optimized for running analytic queries (i.e most played songs, most active user on "sparkify", etc).
+ - The purpose of this data modeling project is to architect a database schema and ETL pipeline that would optimize the analytics team ability to query information about the songplay activity data being collected by "sparikfy's" music streaming app (i.e most played songs, most active user on "sparkify", etc).
+ - This ETL pipeline will:
+  - *Extract* user session data and song/artist metadata contained in json files
+  - *Transform* the raw values into new data formats and structures that will fit into a relational data model
+  - *Load* the processed data into relational tables in Postgres database 
  
 ## Repo Content
 ### Data Sources
@@ -18,7 +21,7 @@
 ### Python3 Scripts
 - `sql_queries.py`: contains SQL scripts to create database tables and insert data into them
 - `create_tables.py`: drops and recreates sparkify database and tables defined in sql_queries.py (run this script to reset the database)
-- `etl.py`: main script to _extract_ all song and log data in json files from `/data`, _transform_ them into required data formats for data model, and then _load_ them into relational tables in the sparkify database.
+- `etl.py`: main script to *extract* all song and log data in json files from `/data`, *transform* them into required formats for the data model, and then *load* them into relational tables in the sparkify database.
 
 ### Jupyter Notebooks
 - `etl.ipynb`: workbook planning the etl process
