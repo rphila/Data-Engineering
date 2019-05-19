@@ -1,9 +1,9 @@
 # "Sparkify" ETL Process
  - The purpose of this data modeling project is to architect a database schema and ETL pipeline that would optimize the analytics team ability to query information about the songplay activity data being collected by "sparikfy's" music streaming app (i.e most played songs, most active user on "sparkify", etc).
  - This ETL pipeline will:
-  - *Extract* user session data and song/artist metadata contained in json files
-  - *Transform* the raw values into new data formats and structures that will fit into a relational data model
-  - *Load* the processed data into relational tables in Postgres database 
+   - __Extract__ user session data and song/artist metadata contained in json files
+   - __Transform__ the raw values into new data formats and structures that will fit into a relational data model
+   - __Load__ the processed data into relational tables in Postgres database 
  
 ## Repo Content
 ### Data Sources
@@ -21,7 +21,7 @@
 ### Python3 Scripts
 - `sql_queries.py`: contains SQL scripts to create database tables and insert data into them
 - `create_tables.py`: drops and recreates sparkify database and tables defined in sql_queries.py (run this script to reset the database)
-- `etl.py`: main script to *extract* all song and log data in json files from `/data`, *transform* them into required formats for the data model, and then *load* them into relational tables in the sparkify database.
+- `etl.py`: main script to __extract__ all song and log data in json files from `/data`, __transform__ them into required formats for the data model, and then __load__ them into relational tables in the sparkify database.
 
 ### Jupyter Notebooks
 - `etl.ipynb`: workbook planning the etl process
@@ -31,4 +31,4 @@
 ## Instructions
  - Run `create_tables.py`
  - Run `etl.py`
- - Run through commands in `test.ipynb` to verify all tables in sparkify database has been populated with the json data
+ - Run through commands in `test.ipynb` to verify all tables in sparkify database has been populated with the json data, and that common analytic queries are able to be executed
