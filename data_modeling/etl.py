@@ -6,48 +6,51 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
-    '''extracts song and artist json data from filepath 
+    '''input: cursor and filepath to song/artist data
+    function: extracts song and artist json data from filepath
     and runs insert scripts from sql_queries to insert into database tables'''
-    
+
     # open song file
     df = pd.read_json(filepath, lines=True)
 
     # insert song record
-    song_data = (df.song_id.values[0], 
-                 df.title.values[0], 
-                 df.artist_id.values[0], 
-                 int(df.year.values[0]), 
+    song_data = (df.song_id.values[0],
+                 df.title.values[0],
+                 df.artist_id.values[0],
+                 int(df.year.values[0]),
                  df.duration.values[0])
     cur.execute(song_table_insert, song_data)
-    
+
     # insert artist record
-    artist_data = (df.artist_id.values[0], 
-                   df.artist_name.values[0], 
-                   df.artist_location.values[0], 
-                   df.artist_latitude.values[0], 
+    artist_data = (df.artist_id.values[0],
+                   df.artist_name.values[0],
+                   df.artist_location.values[0],
+                   df.artist_latitude.values[0],
                    df.artist_longitude.values[0])
     cur.execute(artist_table_insert, artist_data)
 
 
 def process_log_file(cur, filepath):
-    '''extracts user log activity data from filepath and filters by NextSong acion
+    '''input: cursor and filepath to song/artist data
+    function: extracts user log activity data from filepath and filters by NextSong acion
     and runs insert scripts from sql_queries to insert into database tables;
-    also transforms timestamp values into various time dataformats 
+    also transforms timestamp values into various time dataformats
     and queries ids from song and artist table to insert into songplay table
     '''
-        
+
     # open log file
     df = pd.read_json(filepath, lines=True)
 
     # filter by NextSong action
-    df = df[df.page == 'NextSong']
+    df = df[df.page == 'NextSong'].sort_values(by='ts', ascending=True)
 
     # convert timestamp column to datetime
     t = pd.to_datetime(df["ts"], unit='ms')
-    
+
     # insert time data records
-    time_data = (t.dt.time, t.dt.hour, t.dt.day, t.dt.week, t.dt.month, t.dt.year, t.dt.weekday)
+    time_data = (df["ts"], t.dt.hour, t.dt.day, t.dt.week, t.dt.month, t.dt.year, t.dt.weekday)
     column_labels = ('start_time', 'hour', 'day', 'week', 'month', 'year', 'weekday')
+
     time_df = pd.DataFrame(list(time_data)).T
     time_df.columns = column_labels
 
@@ -63,37 +66,37 @@ def process_log_file(cur, filepath):
 
     # insert songplay records
     for index, row in df.iterrows():
-        
+
         # get songid and artistid from song and artist tables
         cur.execute(song_select, (row.song, row.artist, row.length))
         results = cur.fetchone()
-        
+
         if results:
             songid, artistid = results
         else:
             songid, artistid = None, None
 
         # insert songplay record
-        songplay_data = (index, 
-                         pd.to_datetime(row.ts, unit='ms'), 
-                         row.userId, 
-                         row.level, 
-                         songid, 
-                         artistid, 
-                         row.sessionId, 
-                         row.location, 
+        songplay_data = (row.ts,
+                         row.userId,
+                         row.level,
+                         songid,
+                         artistid,
+                         row.sessionId,
+                         row.location,
                          row.userAgent)
         cur.execute(songplay_table_insert, songplay_data)
 
 
 def process_data(cur, conn, filepath, func):
-    '''loop through files in filepath, and sends all json files to function to be processed'''
-    
+    '''input: cursor, connection to sparkify and filepath and function to process data
+    function: loop through files in filepath, and sends all json files to function to be processed'''
+
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
-        files = glob.glob(os.path.join(root,'*.json'))
-        for f in files :
+        files = glob.glob(os.path.join(root, '*.json'))
+        for f in files:
             all_files.append(os.path.abspath(f))
 
     # get total number of files found
@@ -108,6 +111,9 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
+    '''main function to open sparkify database connection,
+    then loops though files in filespaths to run ETL process defined in the song and log data processing function'''
+
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
 
