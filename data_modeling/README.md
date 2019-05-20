@@ -11,7 +11,7 @@
    - This dataset is subset of http://millionsongdataset.com/
  - `/data/log_data`: data of user session activity logs on the sparkify music streaming app, partitioned into directories by year and month
  
-### Postgres Database (dbname: sparkify) 
+### Postgres Database (dbname: sparkifydb) 
   - The sparkify database is a star schema with the user songplay data as the main fact table, and supporting dimension tables containing information about song, artist, user and time. This structure allows optimized querying about user songplay activity. 
   - Tables:
     - `songplays`: fact table containing logs of songplay sessions from users
@@ -32,7 +32,7 @@
 
 ## Running the pipeline
 ### Prerequisite
- - Postgres installed on local host with default database `(host=127.0.0.1 dbname=studentdb user=student password=student)`
+ - Postgres is installed on local host with default database `(host=127.0.0.1 dbname=studentdb user=student password=student)`
  - Python3 to run .py scripts
  - Contents of `/data.zip` file extracted into `/data`
 
