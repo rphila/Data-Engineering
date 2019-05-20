@@ -1,29 +1,36 @@
 # "Sparkify" ETL Process
  - The purpose of this data modeling project is to architect a database schema and ETL pipeline that would optimize the analytic team's ability to query information about songplay activity data being collected from "sparikfy's" music streaming app (i.e most played songs, most active user on "sparkify", etc).
- - This ETL pipeline uses python and SQL scripts to:
-   - __Extract__ data about user songplay session activity and song metadata from json files in local directories
+ - The ETL pipeline created uses python and SQL scripts to:
+   - __Extract__ data about user songplay session activity and song metadata from json files within local directories
    - __Transform__ the extracted json datasets into new data formats and structures that will fit into a relational data model
-   - __Load__ the transformed data into relational tables in Postgres database for analytic focus
+   - __Load__ the transformed data into relational tables in Postgres database, removing duplicate values
  
 ## Repo Content
-### Datasets
+### Datasets (data.zip)
  - `/data/song_data`: songs and artist metadata partitioned into directories according to first 3 letters of track ID 
    - This dataset is subset of http://millionsongdataset.com/
  - `/data/log_data`: data of user session activity logs on the sparkify music streaming app, partitioned into directories by year and month
  
 ### Postgres Database (dbname: sparkifydb) 
-  - The sparkify database is a star schema with the user songplay data as the main fact table, and supporting dimension tables containing information about song, artist, user and time. This structure allows optimized querying about user songplay activity. 
-  - Tables:
+  - The sparkify database is a star schema with the songplay session data as the main fact table and supporting dimension tables containing information about song, artist, user and time. This structure (pictured below) allows optimized querying on any of the dimension table fields to join with data in the songplay table. 
+  
+  ![star schema](https://github.com/rphila/Data-Engineering/blob/master/data_modeling/img/star_schema.png)
+  
+  (_Primary Key fields are in bold while foreign key (FK) relationships between tables are identified with lines linking them;_
+  
+  _NOTE: FK relationships between songs and artists tables are disabled due to their dataset being incomplete, resulting in missing values when joined_)
+  
+  - Table description:
     - `songplays`: fact table containing logs of songplay sessions from users
-    - `artists`: dimension table containing list of song artists
-    - `songs`: dimension table containing list of songs (with key to artists_id from artist table)
-    - `users`: dimension table containing list of users
+    - `artists`: dimension table containing list of song artists (duplicates removed)
+    - `songs`: dimension table containing list of songs (duplicates removed)
+    - `users`: dimension table containing list of users (duplicates removed, with the latest subscription "level" inserted into table)
     - `time`: dimension table breaking up timestamp info about dates and times of user sessions
     
 ### Python Scripts
 - `sql_queries.py`: contains SQL scripts to create database tables and insert data into them
 - `create_tables.py`: drops and recreates sparkify database and tables defined in sql_queries.py (run this script to reset the database)
-- `etl.py`: main script to __extract__ song and log data from json files in `/data`, __transform__ them into required formats for the data model, and then __load__ them into relational tables in the sparkify database.
+- `etl.py`: main script to __extract__ song and log data from json files in `/data`, __transform__ them into required formats for the data model, and then __load__ them into relational tables in the sparkify database, removing duplicate values.
 
 ### Jupyter Notebooks
 - `etl.ipynb`: workbook planning the etl process
@@ -43,26 +50,29 @@
  
 ## Example Analysis:
 ### Queries and Results
+- Songplay session by weekday:
+  ![star schema](https://github.com/rphila/Data-Engineering/blob/master/data_modeling/img/query1.png)
+  
 - Songplay session by gender:
 > SELECT u.gender, count(s.songplay_id) AS cnt FROM songplays s JOIN users u ON s.user_id=u.user_id GROUP BY u.gender
 
-    - F:	1978297
-    - M:	340803`
+    - F:	4895
+    - M:	1936`
 
  - Songplay session by subscription level:
  > SELECT u.level, count(s.songplay_id) AS cnt FROM songplays s JOIN users u ON s.user_id=u.user_id GROUP BY u.level
  
-    - paid:	2227192
-    - free:	91908
+    - paid:	4547
+    - free:	2284
   
   - Songs played in sessions
   > SELECT s.title, count(sp.songplay_id) AS cnt FROM songplays sp LEFT JOIN songs s ON sp.song_id=s.song_id GROUP BY s.title
   
-     - None:	6819
+     - None:	6830
      - Setanta matins:	1
    
 ### Findings
- - Most active users listening to music on sparkfy music streaming app are female with paid subscipions.
+ - Most active users listening to music on sparkfy music streaming app are female, those with paid subscipions, and on Friday.
  - Only 1 record from the songplay logs were matched with the song/artist metadata
 
 ### Next Steps:
