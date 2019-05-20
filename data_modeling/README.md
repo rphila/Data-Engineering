@@ -21,12 +21,14 @@
   _NOTE: FK relationships between songs and artists tables are disabled due to their dataset being incomplete, resulting in missing values when joined_)
   
   - Table description:
-    - `songplays`: fact table containing logs of songplay sessions from users
     - `artists`: dimension table containing list of song artists (duplicates removed)
     - `songs`: dimension table containing list of songs (duplicates removed)
-    - `users`: dimension table containing list of users (duplicates removed, with the latest subscription "level" inserted into table)
+    - `users`: dimension table containing list of users (duplicates removed, with the latest subscription "level" used during insert)
     - `time`: dimension table breaking up timestamp info about dates and times of user sessions
+    - `songplays`: fact table containing logs of "NextSong" songplay sessions from users:
     
+    ![star schema](https://github.com/rphila/Data-Engineering/blob/master/data_modeling/img/songplays.png)
+      
 ### Python Scripts
 - `sql_queries.py`: contains SQL scripts to create database tables and insert data into them
 - `create_tables.py`: drops and recreates sparkify database and tables defined in sql_queries.py (run this script to reset the database)
