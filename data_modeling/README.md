@@ -25,8 +25,9 @@
     - `songs`: dimension table containing list of songs (duplicates removed)
     - `users`: dimension table containing list of users (duplicates removed, with the latest subscription "level" used during insert)
     - `time`: dimension table breaking up timestamp info about dates and times of user sessions
-    - `songplays`: fact table containing logs of "NextSong" songplay sessions from users:
+    - `songplays`: fact table containing logs of "NextSong" songplay sessions from users
     
+  - Preview of songplays table:
    ![songplays](https://github.com/rphila/Data-Engineering/blob/master/data_modeling/img/songplays.PNG)
       
 ### Python Scripts
@@ -60,7 +61,7 @@
 > SELECT u.gender, count(s.songplay_id) AS cnt FROM songplays s JOIN users u ON s.user_id=u.user_id GROUP BY u.gender
 
     - F:	4895
-    - M:	1936`
+    - M:	1936
 
  - Songplay session by subscription level:
  > SELECT u.level, count(s.songplay_id) AS cnt FROM songplays s JOIN users u ON s.user_id=u.user_id GROUP BY u.level
