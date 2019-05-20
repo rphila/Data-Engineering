@@ -3,6 +3,8 @@ from sql_queries import create_table_queries, drop_table_queries
 
 
 def create_database():
+    '''creates sparkifydb and opens a connection'''
+    
     # connect to default database
     conn = psycopg2.connect("host=127.0.0.1 dbname=studentdb user=student password=student")
     conn.set_session(autocommit=True)
@@ -23,6 +25,8 @@ def create_database():
 
 
 def drop_tables(cur, conn):
+    '''drops tables defined in sql_queries'''
+    
     for query in drop_table_queries:
         print(query)
         cur.execute(query)
@@ -30,6 +34,8 @@ def drop_tables(cur, conn):
 
 
 def create_tables(cur, conn):
+    '''creates tables defined in sql_queries'''
+    
     for query in create_table_queries:
         cur.execute(query)
         conn.commit()
