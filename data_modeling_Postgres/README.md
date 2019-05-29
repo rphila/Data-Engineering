@@ -14,7 +14,7 @@
 ### Postgres Database (dbname: sparkifydb) 
   - The sparkify database is a star schema with the songplay session data as the main fact table and supporting dimension tables containing information about song, artist, user and time. This structure (pictured below) allows optimized querying on any of the dimension table fields to join with data in the songplay table. 
   
- ![star schema](https://github.com/rphila/Data-Engineering/blob/master/data_modeling/img/star_schema.png)
+ ![star schema](https://github.com/rphila/Data-Engineering/blob/master/data_modeling_Postgres/img/star_schema.png)
   
   (_Primary Key fields are in bold while foreign key (FK) relationships between tables are identified with lines linking them;_
   
@@ -28,7 +28,7 @@
     - `songplays`: fact table containing logs of "NextSong" songplay sessions from users
     
   - Preview of songplays table:
-   ![songplays](https://github.com/rphila/Data-Engineering/blob/master/data_modeling/img/songplays.PNG)
+   ![songplays](https://github.com/rphila/Data-Engineering/blob/master/data_modeling_Postgres/img/songplays.PNG)
       
 ### Python Scripts
 - `sql_queries.py`: contains SQL scripts to create database tables and insert data into them
@@ -55,7 +55,7 @@
 ### Queries and Results
 - Songplay session by weekday:
 
- ![query1](https://github.com/rphila/Data-Engineering/blob/master/data_modeling/img/query1.PNG)
+ ![query1](https://github.com/rphila/Data-Engineering/blob/master/data_modeling_Postgres/img/query1.PNG)
   
 - Songplay session by gender:
 > SELECT u.gender, count(s.songplay_id) AS cnt FROM songplays s JOIN users u ON s.user_id=u.user_id GROUP BY u.gender
