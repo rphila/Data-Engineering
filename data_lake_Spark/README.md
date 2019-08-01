@@ -1,6 +1,8 @@
 # "Sparkify" Data Lake
 - This project is a continuation of the data engineering efforts started previously using:
-    -- [Postgres Database](https://github.com/rphila/Data-Engineering/tree/master/data_modeling_Postgres)  
+
+    -- [Postgres Database](https://github.com/rphila/Data-Engineering/tree/master/data_modeling_Postgres) 
+    
     -- [Redshift Data warehouse](https://github.com/rphila/Data-Engineering/tree/master/data_warehouse_Redshift)
 - As the user and song database grows even more, the data warehouse will now be moved into a data lake, and Spark will be used for data processing. 
     -- The data source will continue to reside in S3 as json files, and the transformed data will now be written to parquet files that are partitioned in table directories on S3. Futher analytics can be done using tools such as AWS Athena.
@@ -23,6 +25,8 @@ _Note: These scripts reference values for resources from a config file: dl.cfg_
 ### Instructions
  - Python3 to run .py scripts
  - AWS keys to connect to S3 
+ 
     -- Fill in AWS access and secret keys into _dl.cfg_ file
+    
     -- Replace *output_data* with path to desired S3 output location in the main() function of _etl.py_
  - Run `etl.py`
