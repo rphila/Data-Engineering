@@ -1,11 +1,12 @@
 # Laotian Immigration Patterns
-- This project will investigate trends of Laotian immigration to the US in 2016. Raw datasets on immigration, city temperature and city demographics will be collected, cleaned and uploaded into S3. Then python and Spark will be used to transform the raw data from S3 into a database schema suitable for analysis in a Redshift data warehouse. 
+- This project will investigate trends of Laotian immigration to the US in 2016. Raw datasets on immigration, city temperature and city demographics will be collected, cleaned and uploaded into S3. Then Python and Spark will be used to transform the raw data from S3 into a database schema suitable for analysis in a Redshift data warehouse. 
 
 ## Raw Dataset
 - The I94 Immigration Data is in SAS7BDAT format and comes from the US National Tourism and Trade Office: https://travel.trade.gov/research/reports/i94/historical/2016.html 
     - _The data dictionary is in the I94_SAS_Labels_Descriptions.SAS file._
 - The World Temperature Data is in csv format and comes from Kaggle: https://www.kaggle.com/berkeleyearth/climate-change-earth-surface-temperature-data
 - The U.S. City Demographic Data is in csv format and comes from OpenSoft: https://public.opendatasoft.com/explore/dataset/us-cities-demographics/export/
+- The Airport Code Table is a simple csv table of airport codes and corresponding cities. It comes from here: https://datahub.io/core/airport-codes#data
 
 ### Data Model
 
@@ -35,6 +36,7 @@ _Note: These scripts reference values for resources from a config file: dwh.cfg_
 - `temperature_US.csv`: Cleaned and filtered temperature data
 - `i94_laos.csv`: Cleaned and filtered immigration data
 - `us-cities-demographics.csv`: raw us cities demographics data (dataset will be normalized during transformation into redshift tables)
+- `airport-codes_csv.csv`: raw airport codes (will be used to join local_code with i94port to get municipality as city)
 
 ## Running the pipeline
 ### Prerequisite
@@ -49,9 +51,29 @@ _Note: These scripts reference values for resources from a config file: dwh.cfg_
  
 
 ## Example Analysis:
-### Queries and Results
+#### Query
 
+```# Top city destination for Laotion immigrants in 2016
+
+%%sql SELECT city, state, count(i.*) AS cnt
+FROM i94 i 
+LEFT JOIN city_demo c ON i.citydemo_id=c.citydemo_id
+GROUP by city, state
+ORDER BY cnt DESC;
+```
+
+#### Results
+```
+city, state: cnt
+Seattle, Washington:7
+Houston, Texas:2
+Detroit, Michigan:2
+Atlanta, Georgia:2
+Dallas, Texas:2
+```
 ### Findings
 
+3 of the top 5 cities for Laotian immigrants are to destinations with a large Laotion populatian: https://en.wikipedia.org/wiki/Laotian_Americans#Demographics
 
+These include Seattle, Washington and Houston/Dallas, Texas. This may indicate that Laotian immigrants seek US destinations where they can  find an existing Laotiancommunity.
 

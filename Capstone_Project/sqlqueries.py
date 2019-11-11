@@ -10,6 +10,7 @@ config.read('dwh.cfg')
 staging_i94_table_drop = "DROP TABLE IF EXISTS staging_i94;"
 staging_temperature_table_drop = "DROP TABLE IF EXISTS staging_temperature;"
 staging_citydemo_table_drop = "DROP TABLE IF EXISTS staging_citydemo;"
+staging_airport_table_drop = "DROP TABLE IF EXISTS staging_airport;"
 i94_table_drop = "DROP TABLE IF EXISTS i94;"
 temperature_table_drop = "DROP TABLE IF EXISTS temperature;"
 citydemo_table_drop = "DROP TABLE IF EXISTS city_demo;"
@@ -51,13 +52,13 @@ staging_temperature_table_create = ("CREATE TABLE IF NOT EXISTS staging_temperat
                     "dt VARCHAR(255) NOT NULL, "
                      "avg_temperature FLOAT NULL,"
                     "avg_temperature_uncertainty FLOAT NULL,"
-                    "City VARCHAR(255) NOT NULL, "
+                    "city VARCHAR(255) NOT NULL, "
                      "country VARCHAR(255) NOT NULL, "
                      "latitude VARCHAR(255) NULL,"
                     "longitude VARCHAR(255) NULL);")
 
 staging_citydemo_table_create = ("CREATE TABLE IF NOT EXISTS staging_citydemo ("
-                    "City VARCHAR(255) NOT NULL, "
+                    "city VARCHAR(255) NOT NULL, "
                      "State VARCHAR(255) NOT NULL, "
                      "median_age FLOAT NULL,"
                     "male_population FLOAT NULL,"
@@ -70,10 +71,24 @@ staging_citydemo_table_create = ("CREATE TABLE IF NOT EXISTS staging_citydemo ("
                     "race VARCHAR(255) NULL, "
                      "count FLOAT NULL);")
 
+staging_airport_table_create = ("CREATE TABLE IF NOT EXISTS staging_airport ("
+                    "ident VARCHAR(255) NOT NULL, "
+                     "type VARCHAR(255) NOT NULL, "
+                     "name VARCHAR(255) NULL,"
+                    "elevation_ft INTEGER NULL,"
+                    "continent VARCHAR(255) NULL,"
+                    "iso_country VARCHAR(255) NULL,"
+                    "iso_region VARCHAR(255) NULL,"
+                    "municipality VARCHAR(255) NULL,"
+                    "gps_code VARCHAR(255) NULL,"
+                    "iata_code VARCHAR(255) NULL,"
+                    "local_code VARCHAR(255) NULL, "
+                     "coordinates VARCHAR(255) NULL);")
+
 
 citydemo_table_create = ("CREATE TABLE IF NOT EXISTS city_demo ("
                      "citydemo_id BIGINT IDENTITY(0,1)  NOT NULL, "
-                    "City VARCHAR(255) NOT NULL, "
+                    "city VARCHAR(255) NOT NULL, "
                      "State VARCHAR(255) NOT NULL, "
                      "median_age FLOAT NULL,"
                     "male_population FLOAT NULL,"
@@ -113,7 +128,7 @@ temperature_table_create = ("CREATE TABLE IF NOT EXISTS temperature ("
                     "dt VARCHAR(255) NOT NULL, "
                      "avg_temperature FLOAT NULL,"
                     "avg_temperature_uncertainty FLOAT NULL,"
-                    "City VARCHAR(255) NOT NULL, "
+                    "city VARCHAR(255) NOT NULL, "
                      "citydemo_id BIGINT NOT NULL, "
                      "country VARCHAR(255) NOT NULL, "
                      "latitude VARCHAR(255) NULL,"
@@ -145,10 +160,17 @@ staging_citydemo_copy = ("COPY staging_citydemo FROM 's3://{}' " +
                        "IGNOREHEADER 1").format(bucket_name+"/us-cities-demographics.csv", 
                                 config.get('IAM_ROLE','ARN'),)
 
+staging_airport_copy = ("COPY staging_airport FROM 's3://{}' " +
+                       "CREDENTIALS 'aws_iam_role={}' " +
+                       "CSV " +
+                       "QUOTE '\"' " +
+                       "IGNOREHEADER 1").format(bucket_name+"/airport-codes_csv.csv", 
+                                config.get('IAM_ROLE','ARN'),)
+
 # FINAL TABLES
 
 citydemo_table_insert = ("INSERT INTO city_demo ("
-                         "City, "
+                         "city, "
                      "State, "
                      "median_age,"
                     "male_population,"
@@ -191,12 +213,13 @@ temperature_table_insert = ("INSERT INTO temperature ("
           "SELECT DISTINCT dt, "
                      "avg_temperature,"
                     "avg_temperature_uncertainty,"
-                    "City, "
+                    "s.city, "
                      "c.citydemo_id, "
                      "country, "
                         "latitude,"
                     "longitude "
-                    "FROM staging_temperature s LEFT JOIN city_demo c ON c.city=s.city;")
+                    "FROM staging_temperature s LEFT JOIN city_demo c ON c.city=s.city "
+                     "WHERE c.citydemo_id IS NOT NULL;")
 
 i94_table_insert = ("INSERT INTO i94 ("
                     "i94yr,"
@@ -227,12 +250,14 @@ i94_table_insert = ("INSERT INTO i94 ("
                     "dtadfile,"
                      "occup, "
                      "biryear,"
-                    "gender
-                    "FROM staging_i94 s LEFT JOIN city_demo c ON c.city=s.i94port;")
+                    "gender "
+                    "FROM staging_i94 s LEFT JOIN staging_airport a ON a.local_code=s.i94port "
+                    "LEFT JOIN city_demo c ON c.city=a.municipality "
+                    "WHERE c.citydemo_id IS NOT NULL;")
 
 # QUERY LISTS
 
-create_table_queries = [staging_i94_table_create, staging_temperature_table_create, staging_citydemo_table_create, i94_table_create, temperature_table_create, citydemo_table_create,cityrace_table_create]
-drop_table_queries = [staging_i94_table_drop, staging_temperature_table_drop, staging_citydemo_table_drop, i94_table_drop, temperature_table_drop, citydemo_table_drop,cityrace_table_drop]
-copy_table_queries = [staging_i94_copy, staging_temperature_copy, staging_citydemo_copy]
+create_table_queries = [staging_i94_table_create, staging_temperature_table_create, staging_citydemo_table_create, staging_airport_table_create, i94_table_create, temperature_table_create, citydemo_table_create,cityrace_table_create]
+drop_table_queries = [staging_i94_table_drop, staging_temperature_table_drop, staging_citydemo_table_drop, staging_airport_table_drop, i94_table_drop, temperature_table_drop, citydemo_table_drop,cityrace_table_drop]
+copy_table_queries = [staging_i94_copy, staging_temperature_copy, staging_citydemo_copy, staging_airport_copy]
 insert_table_queries = [citydemo_table_insert,cityrace_table_insert, i94_table_insert, temperature_table_insert]

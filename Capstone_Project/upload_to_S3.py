@@ -26,3 +26,5 @@ s3.upload_file("us-cities-demographics.csv", bucket_name,
                 "us-cities-demographics.csv")
 
 
+s3.upload_file("airport-codes_csv.csv", bucket_name, 
+                "airport-codes_csv.csv")
